@@ -3,9 +3,9 @@ import java.util.*;
 
 import Exceptions.CantCastJSONException;
 import org.json.*;
-import timeToLive.Forever;
-import timeToLive.Limited;
-import timeToLive.GraphTime;
+import GraphTime.Forever;
+import GraphTime.Limited;
+import GraphTime.GraphTime;
 
 public class GraphItem {
 

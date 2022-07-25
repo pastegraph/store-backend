@@ -1,4 +1,4 @@
-package timeToLive;
+package GraphTime;
 
 import java.util.Date;
 
