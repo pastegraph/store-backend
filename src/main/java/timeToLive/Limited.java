@@ -2,15 +2,9 @@ package timeToLive;
 
 import java.util.Date;
 
-public class Limited extends TimeToLive {
+public class Limited extends GraphTime {
 
-    private Date expirationTime;
-
-    public Limited(Date downloadTime, int minToLive) {
-        super(downloadTime);
-        this.expirationTime = (Date) getDownloadTime().clone();
-        expirationTime = new Date(getDownloadTime().getTime() + 60000L * minToLive);
-    }
+    private final Date expirationTime;
 
     public Limited(Date downloadTime, Date expirationTime) {
         super(downloadTime);

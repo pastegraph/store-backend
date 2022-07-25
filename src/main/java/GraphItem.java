@@ -5,16 +5,16 @@ import Exceptions.CantCastJSONException;
 import org.json.*;
 import timeToLive.Forever;
 import timeToLive.Limited;
-import timeToLive.TimeToLive;
+import timeToLive.GraphTime;
 
 public class GraphItem {
 
     private boolean visible;
-    private TimeToLive timeToLive;
+    private GraphTime graphTime;
     private final String graphBody, ip, id;
-    private final List<String> userAgent;
+    private final String userAgent;
 
-    public GraphItem(InputStream inputStream, String ip, List<String> userAgent, String id) throws CantCastJSONException {
+    public GraphItem(InputStream inputStream, String ip, String userAgent, String id) throws CantCastJSONException {
         try {
             this.ip = ip;
             this.id = id;
@@ -33,13 +33,15 @@ public class GraphItem {
                 visible = true;
             }
 
-            //reading expiration and download date
+            //reading expiration and upload date
             Date currentTime = new Date();
             try {
                 int minutesToLive = jsonObject.getInt("expirationMinutes");
-                timeToLive = minutesToLive > 0 ? new Limited(currentTime, minutesToLive) : new Forever(currentTime);
+                graphTime = minutesToLive > 0 ?
+                        new Limited(currentTime, new Date(currentTime.getTime() + 60000L * minutesToLive)) :
+                        new Forever(currentTime);
             } catch (JSONException e) {
-                timeToLive = new Forever(currentTime);
+                graphTime = new Forever(currentTime);
             }
 
             //reading graph body
@@ -49,9 +51,9 @@ public class GraphItem {
         }
     }
 
-    public GraphItem(boolean visible, TimeToLive timeToLive, String graphBody, String ip, List<String> userAgent, String id) {
+    public GraphItem(boolean visible, GraphTime graphTime, String graphBody, String ip, String userAgent, String id) {
         this.visible = visible;
-        this.timeToLive = timeToLive;
+        this.graphTime = graphTime;
         this.graphBody = graphBody;
         this.ip = ip;
         this.userAgent = userAgent;
@@ -70,7 +72,7 @@ public class GraphItem {
         return ip;
     }
 
-    public List<String> getUserAgent() {
+    public String getUserAgent() {
         return userAgent;
     }
 
@@ -82,7 +84,7 @@ public class GraphItem {
         return graphBody.getBytes();
     }
 
-    public TimeToLive getTimeToLive() {
-        return timeToLive;
+    public GraphTime getTimeToLive() {
+        return graphTime;
     }
 }

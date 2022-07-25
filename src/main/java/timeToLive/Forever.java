@@ -1,9 +1,8 @@
 package timeToLive;
 
-import java.util.Calendar;
 import java.util.Date;
 
-public class Forever extends TimeToLive {
+public class Forever extends GraphTime {
 
 
     public Forever(Date downloadTime) {

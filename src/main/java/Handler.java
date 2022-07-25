@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Handler implements HttpHandler {
     private final ConcurrentHashMap<String, String> CORRECT_REQUESTS = new ConcurrentHashMap<>();
@@ -46,10 +45,12 @@ public class Handler implements HttpHandler {
 
                     //getting user-agent info
                     List<String> userAgent = httpExchange.getRequestHeaders().get("User-agent");
+                    StringJoiner userAgentJoiner = new StringJoiner(",");
+                    userAgent.forEach(userAgentJoiner::add);
 
                     //making graph record
                     String currentId = createId();
-                    GraphItem graphItem = new GraphItem(httpExchange.getRequestBody(), ip, userAgent, currentId);
+                    GraphItem graphItem = new GraphItem(httpExchange.getRequestBody(), ip, userAgentJoiner.toString(), currentId);
                     graphsMap.put(currentId, graphItem);
                     SQLHelper.addGraph(graphItem);
 

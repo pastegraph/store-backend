@@ -1,14 +1,11 @@
 import java.sql.*;
 
-import java.util.*;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 
 import Exceptions.ExceptionLogger;
-import timeToLive.Forever;
-import timeToLive.Limited;
-import timeToLive.TimeToLive;
+import timeToLive.*;
 public class SQLHelper {
 
     private static Connection connection;
@@ -22,14 +19,14 @@ public class SQLHelper {
         }
         connection = DriverManager.getConnection("jdbc:sqlite:" + sqlPath);
         try (PreparedStatement statement = connection.prepareStatement(
-                "CREATE TABLE IF NOT EXISTS mainTable (" +
+                "CREATE TABLE IF NOT EXISTS graphData (" +
                         "id TEXT NOT NULL UNIQUE, " +
                         "ip TEXT NOT NULL, " +
                         "userAgent TEXT NOT NULL, " +
                         "isVisible	TEXT NOT NULL, " +
-                        "downloadTime INTEGER NOT NULL, " +
+                        "uploadTime INTEGER NOT NULL, " +
                         "expirationTime INTEGER NOT NULL, " +
-                        "jsonData	TEXT, " +
+                        "graphData	TEXT, " +
                         "PRIMARY KEY(id));")) {
             statement.execute();
         }
@@ -38,25 +35,22 @@ public class SQLHelper {
 
     public static ConcurrentHashMap<String, GraphItem> readGraphsMap() throws SQLException, IOException, ClassNotFoundException {
         try (PreparedStatement statement = connection.prepareStatement(
-                "SELECT * FROM mainTable;")) {
+                "SELECT * FROM graphData;")) {
             ResultSet resultSet = statement.executeQuery();
             ConcurrentHashMap<String, GraphItem> map = new ConcurrentHashMap<>();
             while (resultSet.next()) {
-                TimeToLive timeToLive;
-                Date downloadTime = new Date(resultSet.getLong("downloadTime"));
+                GraphTime graphTime;
+                Date uploadTime = new Date(resultSet.getLong("uploadTime"));
                 Date expirationTime = new Date(resultSet.getLong("expirationTime"));
-                if (expirationTime.getTime() == 0) timeToLive = new Forever(downloadTime);
-                else timeToLive = new Limited(downloadTime, expirationTime);
-
-                String[] userAgentArray = resultSet.getString("userAgent").split("//-/---/-//");
-                List<String> list = Arrays.asList(userAgentArray);
+                if (expirationTime.getTime() == 0) graphTime = new Forever(uploadTime);
+                else graphTime = new Limited(uploadTime, expirationTime);
 
                 GraphItem graphItem = new GraphItem(
                         resultSet.getString("isVisible").equals("true"),
-                        timeToLive,
-                        resultSet.getString("jsonData"),
+                        graphTime,
+                        resultSet.getString("graphData"),
                         resultSet.getString("ip"),
-                        list,
+                        resultSet.getString("userAgent"),
                         resultSet.getString("id"));
 
                 map.put(graphItem.getId(), graphItem);
@@ -67,18 +61,14 @@ public class SQLHelper {
 
     public synchronized static void addGraph(GraphItem graphItem) throws SQLException, IOException {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO mainTable (id, ip, userAgent, isVisible, downloadTime, expirationTime, jsonData) " +
+                "INSERT INTO graphData (id, ip, userAgent, isVisible, uploadTime, expirationTime, graphData) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?);")) {
 
             statement.setString(1, graphItem.getId());
             statement.setString(2, graphItem.getIp());
-            StringJoiner joiner = new StringJoiner("//-/---/-//");
-            for (String temp : graphItem.getUserAgent()) {
-                joiner.add(temp);
-            }
-            statement.setString(3, joiner.toString());
+            statement.setString(3, graphItem.getUserAgent());
             statement.setString(4, String.valueOf(graphItem.isVisible()));
-            statement.setLong(5, graphItem.getTimeToLive().getDownloadTime().getTime());
+            statement.setLong(5, graphItem.getTimeToLive().getUploadTime().getTime());
             statement.setLong(6, graphItem.getTimeToLive().getExpirationTime().getTime());
             statement.setString(7, graphItem.getGraphBody());
 
@@ -88,7 +78,7 @@ public class SQLHelper {
 
     public static void deleteGraph(String id) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
-                "DELETE FROM mainTable WHERE id=(?)")) {
+                "DELETE FROM graphData WHERE id=(?)")) {
             statement.setString(1, id);
             statement.execute();
         }
