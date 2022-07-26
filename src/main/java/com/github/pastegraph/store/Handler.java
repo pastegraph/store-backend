@@ -1,5 +1,7 @@
-import Exceptions.CantCastJSONException;
-import Exceptions.ExceptionLogger;
+package com.github.pastegraph.store;
+
+import com.github.pastegraph.store.Exceptions.CantCastJSONException;
+import com.github.pastegraph.store.Exceptions.ExceptionLogger;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -104,6 +106,13 @@ public class Handler implements HttpHandler {
                     makeResponse("Unknown error. Check logs.\n".getBytes(), httpExchange, 500);
                 }
             });
+        }
+
+        else if (requestMethod.equals("OPTIONS")) {
+            httpExchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            httpExchange.getResponseHeaders().add("Access-Control-Allow-Methods", "*");
+            httpExchange.getResponseHeaders().add("Access-Control-Allow-Headers", "*");
+            httpExchange.sendResponseHeaders(204, -1);
         }
 
         //processing unsupported request

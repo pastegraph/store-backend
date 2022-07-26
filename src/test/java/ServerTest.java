@@ -1,4 +1,5 @@
-import Exceptions.ExceptionLogger;
+import com.github.pastegraph.store.Exceptions.ExceptionLogger;
+import com.github.pastegraph.store.ServerMain;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package Exceptions;
+package com.github.pastegraph.store.Exceptions;
 
 import java.io.File;
 import java.io.IOException;

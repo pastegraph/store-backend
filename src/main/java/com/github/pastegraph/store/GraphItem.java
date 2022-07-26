@@ -1,7 +1,9 @@
+package com.github.pastegraph.store;
+
 import java.io.InputStream;
 import java.util.*;
 
-import Exceptions.CantCastJSONException;
+import com.github.pastegraph.store.Exceptions.CantCastJSONException;
 import org.json.*;
 
 public class GraphItem {

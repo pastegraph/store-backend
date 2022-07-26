@@ -1,10 +1,12 @@
+package com.github.pastegraph.store;
+
 import java.sql.*;
 
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 
-import Exceptions.ExceptionLogger;
+import com.github.pastegraph.store.Exceptions.ExceptionLogger;
 public class SQLHelper {
 
     private static Connection connection;

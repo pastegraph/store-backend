@@ -1,4 +1,6 @@
-import Exceptions.ExceptionLogger;
+package com.github.pastegraph.store;
+
+import com.github.pastegraph.store.Exceptions.ExceptionLogger;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.File;
