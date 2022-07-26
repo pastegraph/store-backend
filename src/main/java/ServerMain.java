@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,12 +16,12 @@ public class ServerMain {
     private static final int port = 8080;
     private static ConcurrentHashMap<String, GraphItem> graphsMap;
 
-    public static void main(String[] args) {
+    public static void main(String...args) {
+        String sqlPath = args.length == 1 ? args[0] : System.getProperty("user.home") + File.separator + "pastegraph.s3db";
+        SQLHelper.connectSqlite(sqlPath);
         try {
-            String sqlPath = args.length == 1 ? args[0] : System.getProperty("user.home") + File.separator + "pastegraph.s3db";
-            SQLHelper.connectSqlite(sqlPath);
             graphsMap = SQLHelper.readGraphsMap();
-        } catch (SQLException | ClassNotFoundException | IOException e) {
+        } catch (SQLException e) {
             ExceptionLogger.log(e);
             System.exit(1);
         }

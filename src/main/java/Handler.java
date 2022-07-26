@@ -25,7 +25,7 @@ public class Handler implements HttpHandler {
             builder.append(entry.getKey()).append(entry.getValue());
         REQUEST_DESCRIPTION = builder.toString();
     }
-    private final ConcurrentHashMap<String, GraphItem> graphsMap;
+    private ConcurrentHashMap<String, GraphItem> graphsMap;
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     public Handler(ConcurrentHashMap<String, GraphItem> graphsMap) {

@@ -3,14 +3,10 @@ import java.util.*;
 
 import Exceptions.CantCastJSONException;
 import org.json.*;
-import GraphTime.Forever;
-import GraphTime.Limited;
-import GraphTime.GraphTime;
 
 public class GraphItem {
 
     private boolean visible;
-    private GraphTime graphTime;
     private final String graphBody, ip, id;
     private final String userAgent;
 
@@ -36,7 +32,6 @@ public class GraphItem {
             }
 
             //reading expiration and upload date
-            Date currentTime = new Date();
             try {
                 int minutesToLive = jsonObject.getInt("expirationMinutes");
                 if (minutesToLive > 0)
@@ -86,7 +81,7 @@ public class GraphItem {
         return graphBody.getBytes();
     }
 
-    public GraphTime getTimeToLive() {
-        return graphTime;
+    public Date getExpirationTime() {
+        return expirationTime;
     }
 }

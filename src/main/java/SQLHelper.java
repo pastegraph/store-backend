@@ -5,30 +5,31 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 
 import Exceptions.ExceptionLogger;
-import GraphTime.*;
 public class SQLHelper {
 
     private static Connection connection;
 
-    public static void connectSqlite(String sqlPath) throws SQLException {
+    public static void connectSqlite(String sqlPath) {
         try {
             Class.forName("org.sqlite.JDBC").getDeclaredConstructor().newInstance();
+            connection = DriverManager.getConnection("jdbc:sqlite:" + sqlPath);
         } catch (Exception e) {
             ExceptionLogger.log(e);
             System.exit(1);
         }
-        connection = DriverManager.getConnection("jdbc:sqlite:" + sqlPath);
         try (PreparedStatement statement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS graphData (" +
                         "id TEXT NOT NULL UNIQUE, " +
                         "ip TEXT NOT NULL, " +
                         "userAgent TEXT NOT NULL, " +
                         "isVisible	TEXT NOT NULL, " +
-                        "uploadTime INTEGER NOT NULL, " +
                         "expirationTime INTEGER NOT NULL, " +
                         "graphData	TEXT, " +
                         "PRIMARY KEY(id));")) {
             statement.execute();
+        } catch (SQLException e) {
+            ExceptionLogger.log(e);
+            System.exit(1);
         }
     }
 
