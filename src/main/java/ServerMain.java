@@ -44,10 +44,16 @@ public class ServerMain {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
+                try {
+                    graphsMap = SQLHelper.readGraphsMap();
+                } catch (SQLException e) {
+                    ExceptionLogger.log(e);
+                    System.exit(1);
+                }
                 Iterator<String> mapIterator = graphsMap.keys().asIterator();
                 while (mapIterator.hasNext()) {
                     String current = mapIterator.next();
-                    if (graphsMap.get(current).getTimeToLive().timeIsUp()) {
+                    if (graphsMap.get(current).getExpirationTime().before(new Date())) {
                         graphsMap.remove(current);
                         try {
                             SQLHelper.deleteGraph(current);

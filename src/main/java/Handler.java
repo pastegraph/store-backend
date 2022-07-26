@@ -34,6 +34,13 @@ public class Handler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
+        try {
+            graphsMap = SQLHelper.readGraphsMap();
+        } catch (SQLException e) {
+            ExceptionLogger.log(e);
+            makeResponse(e.getMessage().getBytes(), httpExchange, 500);
+            System.exit(1);
+        }
         String requestMethod = httpExchange.getRequestMethod();
 
         //processing POST request
