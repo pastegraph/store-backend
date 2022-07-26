@@ -1,9 +1,7 @@
 import com.github.pastegraph.store.Exceptions.ExceptionLogger;
 import com.github.pastegraph.store.ServerMain;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,7 +10,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ServerTest {
 
     private HttpClient client = HttpClient.newHttpClient();
