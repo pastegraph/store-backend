@@ -30,29 +30,21 @@ public class SQLHelper {
                         "PRIMARY KEY(id));")) {
             statement.execute();
         }
-
     }
 
-    public static ConcurrentHashMap<String, GraphItem> readGraphsMap() throws SQLException, IOException, ClassNotFoundException {
+    public static ConcurrentHashMap<String, GraphItem> readGraphsMap() throws SQLException {
+        ConcurrentHashMap<String, GraphItem> map = new ConcurrentHashMap<>();
         try (PreparedStatement statement = connection.prepareStatement(
                 "SELECT * FROM graphData;")) {
             ResultSet resultSet = statement.executeQuery();
-            ConcurrentHashMap<String, GraphItem> map = new ConcurrentHashMap<>();
             while (resultSet.next()) {
-                GraphTime graphTime;
-                Date uploadTime = new Date(resultSet.getLong("uploadTime"));
-                Date expirationTime = new Date(resultSet.getLong("expirationTime"));
-                if (expirationTime.getTime() == 0) graphTime = new Forever(uploadTime);
-                else graphTime = new Limited(uploadTime, expirationTime);
-
                 GraphItem graphItem = new GraphItem(
                         resultSet.getString("isVisible").equals("true"),
-                        graphTime,
+                        new Date(resultSet.getLong("expirationTime")),
                         resultSet.getString("graphData"),
                         resultSet.getString("ip"),
                         resultSet.getString("userAgent"),
                         resultSet.getString("id"));
-
                 map.put(graphItem.getId(), graphItem);
             }
             return map;
@@ -61,16 +53,15 @@ public class SQLHelper {
 
     public synchronized static void addGraph(GraphItem graphItem) throws SQLException, IOException {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO graphData (id, ip, userAgent, isVisible, uploadTime, expirationTime, graphData) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?);")) {
+                "INSERT INTO graphData (id, ip, userAgent, isVisible, expirationTime, graphData) " +
+                        "VALUES (?, ?, ?, ?, ?, ?);")) {
 
             statement.setString(1, graphItem.getId());
             statement.setString(2, graphItem.getIp());
             statement.setString(3, graphItem.getUserAgent());
             statement.setString(4, String.valueOf(graphItem.isVisible()));
-            statement.setLong(5, graphItem.getTimeToLive().getUploadTime().getTime());
-            statement.setLong(6, graphItem.getTimeToLive().getExpirationTime().getTime());
-            statement.setString(7, graphItem.getGraphBody());
+            statement.setLong(5, graphItem.getExpirationTime().getTime());
+            statement.setString(6, graphItem.getGraphBody());
 
             statement.execute();
         }

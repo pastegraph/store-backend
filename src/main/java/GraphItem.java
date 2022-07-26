@@ -14,6 +14,8 @@ public class GraphItem {
     private final String graphBody, ip, id;
     private final String userAgent;
 
+    private Date expirationTime;
+
     public GraphItem(InputStream inputStream, String ip, String userAgent, String id) throws CantCastJSONException {
         try {
             this.ip = ip;
@@ -37,11 +39,11 @@ public class GraphItem {
             Date currentTime = new Date();
             try {
                 int minutesToLive = jsonObject.getInt("expirationMinutes");
-                graphTime = minutesToLive > 0 ?
-                        new Limited(currentTime, new Date(currentTime.getTime() + 60000L * minutesToLive)) :
-                        new Forever(currentTime);
+                if (minutesToLive > 0)
+                    expirationTime = new Date(System.currentTimeMillis() + minutesToLive * 60000L);
+                else expirationTime = new Date(0);
             } catch (JSONException e) {
-                graphTime = new Forever(currentTime);
+                expirationTime = new Date(0);
             }
 
             //reading graph body
@@ -51,9 +53,9 @@ public class GraphItem {
         }
     }
 
-    public GraphItem(boolean visible, GraphTime graphTime, String graphBody, String ip, String userAgent, String id) {
+    public GraphItem(boolean visible, Date expirationTime, String graphBody, String ip, String userAgent, String id) {
         this.visible = visible;
-        this.graphTime = graphTime;
+        this.expirationTime = expirationTime;
         this.graphBody = graphBody;
         this.ip = ip;
         this.userAgent = userAgent;
