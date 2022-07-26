@@ -64,7 +64,8 @@ public class Handler implements HttpHandler {
                     SQLHelper.addGraph(graphItem);
 
                     //making response
-                    makeResponse(currentId.getBytes(), httpExchange, 201);
+                    httpExchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+                    makeResponse(currentId.getBytes(), httpExchange, 200);
 
                 } catch (CantCastJSONException e) {
                     ExceptionLogger.log(e);
