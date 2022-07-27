@@ -36,7 +36,7 @@ jobs:
           tags: ${{secrets.DOCKER_NAME}}/pastegraph-store-backend:test
       -
         name: Build and push Master
-        if: github.ref_name == 'master'
+        if: github.ref_name == 'main'
         uses: docker/build-push-action@v3
         with:
           push: true
