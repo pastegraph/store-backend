@@ -54,7 +54,7 @@ public class ServerTest {
                 .POST(HttpRequest.BodyPublishers.ofString(testJsonBody))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assert response.statusCode() == 201: "Post item failed!";
+        assert response.statusCode() == 200: "Post item failed!";
         graphID = response.body();
     }
 

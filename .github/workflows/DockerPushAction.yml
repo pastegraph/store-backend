@@ -7,6 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: unitTest
+        run: mvn test
+      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       -
@@ -34,7 +37,7 @@ jobs:
           tags: ${{secrets.DOCKER_NAME}}/pastegraph-store-backend:${{ github.ref_name }}
       -
         name: Test Build
-        if: github.ref_name != 'master' && github.ref_type == 'branch'
+        if: github.ref_name != 'main' && github.ref_type == 'branch'
         uses: docker/build-push-action@v3
         with:
           push: false
