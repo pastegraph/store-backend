@@ -24,11 +24,11 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ${{secrets.DOCKER_NAME}}/store:latest
+          tags: ${{secrets.DOCKER_NAME}}/pastegraph-store:latest
       -
         name: Release Build and Push
         if: github.ref_type == 'tag'
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ${{secrets.DOCKER_NAME}}/store:${{ github.ref_name }}
+          tags: ${{secrets.DOCKER_NAME}}/pastegraph-store:${{ github.ref_name }}
