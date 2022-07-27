@@ -25,6 +25,7 @@ public class SQLHelper {
                         "ip TEXT NOT NULL, " +
                         "userAgent TEXT NOT NULL, " +
                         "isVisible	TEXT NOT NULL, " +
+                        "uploadTime TEXT NOT NULL, " +
                         "expirationTime INTEGER NOT NULL, " +
                         "graphData	TEXT, " +
                         "PRIMARY KEY(id));")) {
@@ -44,6 +45,7 @@ public class SQLHelper {
                 GraphItem graphItem = new GraphItem(
                         resultSet.getString("isVisible").equals("true"),
                         new Date(resultSet.getLong("expirationTime")),
+                        new Date(resultSet.getLong("uploadTime")),
                         resultSet.getString("graphData"),
                         resultSet.getString("ip"),
                         resultSet.getString("userAgent"),
@@ -56,15 +58,16 @@ public class SQLHelper {
 
     public synchronized static void addGraph(GraphItem graphItem) throws SQLException, IOException {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO graphData (id, ip, userAgent, isVisible, expirationTime, graphData) " +
-                        "VALUES (?, ?, ?, ?, ?, ?);")) {
+                "INSERT INTO graphData (id, ip, userAgent, isVisible, expirationTime, uploadTime, graphData) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?);")) {
 
             statement.setString(1, graphItem.getId());
             statement.setString(2, graphItem.getIp());
             statement.setString(3, graphItem.getUserAgent());
             statement.setString(4, String.valueOf(graphItem.isVisible()));
             statement.setLong(5, graphItem.getExpirationTime().getTime());
-            statement.setString(6, graphItem.getGraphBody());
+            statement.setLong(6, graphItem.getUploadTime().getTime());
+            statement.setString(7, graphItem.getGraphBody());
 
             statement.execute();
         }

@@ -50,7 +50,6 @@ public class ServerMain {
                     graphsMap = SQLHelper.readGraphsMap();
                 } catch (SQLException e) {
                     ExceptionLogger.log(e);
-                    System.exit(1);
                 }
                 Iterator<String> mapIterator = graphsMap.keys().asIterator();
                 while (mapIterator.hasNext()) {
@@ -61,7 +60,6 @@ public class ServerMain {
                             SQLHelper.deleteGraph(current);
                         } catch (SQLException e) {
                             ExceptionLogger.log(e);
-                            System.exit(1);
                         }
                     }
                 }

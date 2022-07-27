@@ -12,7 +12,7 @@ public class GraphItem {
     private final String graphBody, ip, id;
     private final String userAgent;
 
-    private Date expirationTime;
+    private Date expirationTime, uploadTime;
 
     public GraphItem(InputStream inputStream, String ip, String userAgent, String id) throws CantCastJSONException {
         try {
@@ -35,6 +35,7 @@ public class GraphItem {
 
             //reading expiration and upload date
             try {
+                uploadTime = new Date();
                 int minutesToLive = jsonObject.getInt("expirationMinutes");
                 if (minutesToLive > 0)
                     expirationTime = new Date(System.currentTimeMillis() + minutesToLive * 60000L);
@@ -50,7 +51,8 @@ public class GraphItem {
         }
     }
 
-    public GraphItem(boolean visible, Date expirationTime, String graphBody, String ip, String userAgent, String id) {
+    public GraphItem(boolean visible, Date expirationTime, Date uploadTime, String graphBody, String ip, String userAgent, String id) {
+        this.uploadTime = uploadTime;
         this.visible = visible;
         this.expirationTime = expirationTime;
         this.graphBody = graphBody;
@@ -61,6 +63,10 @@ public class GraphItem {
 
     public boolean isVisible() {
         return visible;
+    }
+
+    public Date getUploadTime() {
+        return uploadTime;
     }
 
     public String getGraphBody() {

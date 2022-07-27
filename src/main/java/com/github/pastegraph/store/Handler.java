@@ -41,7 +41,6 @@ public class Handler implements HttpHandler {
         } catch (SQLException e) {
             ExceptionLogger.log(e);
             makeResponse(e.getMessage().getBytes(), httpExchange, 500);
-            System.exit(1);
         }
         String requestMethod = httpExchange.getRequestMethod();
 
@@ -60,8 +59,8 @@ public class Handler implements HttpHandler {
                     //making graph record
                     String currentId = createId();
                     GraphItem graphItem = new GraphItem(httpExchange.getRequestBody(), ip, userAgentJoiner.toString(), currentId);
-                    graphsMap.put(currentId, graphItem);
                     SQLHelper.addGraph(graphItem);
+                    graphsMap.put(currentId, graphItem);
 
                     //making response
                     httpExchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
@@ -73,7 +72,6 @@ public class Handler implements HttpHandler {
                 } catch (SQLException | IOException e) {
                     ExceptionLogger.log(e);
                     makeResponse(e.getMessage().getBytes(), httpExchange, 500);
-                    System.exit(1);
                 }
             });
         }
