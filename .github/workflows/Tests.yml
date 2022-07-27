@@ -1,4 +1,4 @@
-name: Maven test and Docker push
+name: MavenAndDockerTests
 on: [push]
 permissions: read-all
 
@@ -15,7 +15,7 @@ jobs:
           distribution: 'adopt'
       -
         name: Maven Test
-        run: mvn --batch-mode --update-snapshots verify
+        run: mvn test
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -34,17 +34,3 @@ jobs:
         with:
           push: false
           tags: ${{secrets.DOCKER_NAME}}/pastegraph-store-backend:test
-      -
-        name: Build and push Master
-        if: github.ref_name == 'main'
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: ${{secrets.DOCKER_NAME}}/pastegraph-store-backend:latest
-      -
-        name: Release Build and Push
-        if: github.ref_type == 'tag'
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: ${{secrets.DOCKER_NAME}}/pastegraph-store-backend:${{ github.ref_name }}
