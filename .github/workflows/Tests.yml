@@ -1,4 +1,4 @@
-name: MavenAndDockerTests
+name: MavenTests
 on: [push]
 permissions: read-all
 
@@ -16,15 +16,3 @@ jobs:
       -
         name: Maven Test
         run: mvn test
-      -
-        name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_NAME }}
-          password: ${{ secrets.DOCKER_PASS }}
-      -
-        name: Test Docker Build
-        uses: docker/build-push-action@v3
-        with:
-          push: false
-          tags: ${{secrets.DOCKER_NAME}}/pastegraph-store-backend:test
