@@ -128,7 +128,7 @@ public class Handler implements HttpHandler {
             out.write(response);
             out.close();
         } catch (IOException e) {
-            System.err.println("Connection to " + httpExchange.getRemoteAddress() + " failed");
+            ExceptionLogger.log(e);
         }
     }
 

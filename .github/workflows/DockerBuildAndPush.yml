@@ -32,3 +32,10 @@ jobs:
         with:
           push: true
           tags: ${{secrets.DOCKER_NAME}}/pastegraph-store:${{ github.ref_name }}
+      -
+        name: Test Docker Build
+        if: github.ref_name != 'main' && github.ref_type != 'tag'
+        uses: docker/build-push-action@v3
+        with:
+          push: false
+          tags: ${{secrets.DOCKER_NAME}}/pastegraph-store-backend:test
