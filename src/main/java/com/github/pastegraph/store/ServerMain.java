@@ -19,11 +19,12 @@ public class ServerMain {
     private static final int port = 8080;
     private static ConcurrentHashMap<String, GraphItem> graphsMap;
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerMain.class);
+    private static final String DEFAULT_SQL_PATH = System.getProperty("user.home") + File.separator + "pastegraph.s3db";
 
     public static void main(String... args) {
         LOGGER.info("Application started");
 
-        String sqlPath = args.length == 1 ? args[0] : System.getProperty("user.home") + File.separator + "pastegraph.s3db";
+        String sqlPath = System.getenv("DB_PATH") == null ? DEFAULT_SQL_PATH : System.getenv("DB_PATH");
         LOGGER.debug("sqlPath = {}", sqlPath);
 
         try {
@@ -70,9 +71,8 @@ public class ServerMain {
                     String current = mapIterator.next();
                     if (graphsMap.get(current).getExpirationTime().getTime() != 0 &&
                             graphsMap.get(current).getExpirationTime().before(new Date())) {
-
-                        graphsMap.remove(current);
                         try {
+                            graphsMap.remove(current);
                             SQLHelper.deleteGraph(current);
                             LOGGER.debug("Time Daemon deleted a graph item {}", current);
                         } catch (SQLException e) {
@@ -84,7 +84,7 @@ public class ServerMain {
             }
         };
         Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(task, 0, 10000);
+        timer.scheduleAtFixedRate(task, 0, 60000);
         LOGGER.debug("Time Daemon was scheduled");
     }
 }
