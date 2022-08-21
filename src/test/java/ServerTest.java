@@ -1,4 +1,3 @@
-import com.github.pastegraph.store.Exceptions.ExceptionLogger;
 import com.github.pastegraph.store.ServerMain;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +28,6 @@ public class ServerTest {
             client = HttpClient.newHttpClient();
             tempSqlPath = Files.createTempFile("pastegraph-temp-sql", ".s3db").toString();
         } catch (IOException e) {
-            ExceptionLogger.log(e);
             System.exit(1);
         }
         ServerMain.main(tempSqlPath);

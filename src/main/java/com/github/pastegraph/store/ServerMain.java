@@ -1,6 +1,7 @@
 package com.github.pastegraph.store;
 
-import com.github.pastegraph.store.Exceptions.ExceptionLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.File;
@@ -17,18 +18,29 @@ public class ServerMain {
 
     private static final int port = 8080;
     private static ConcurrentHashMap<String, GraphItem> graphsMap;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerMain.class);
+    private static final String DEFAULT_SQL_PATH = System.getProperty("user.home") + File.separator + "pastegraph.s3db";
 
-    public static void main(String...args) {
-        String sqlPath = args.length == 1 ? args[0] : System.getProperty("user.home") + File.separator + "pastegraph.s3db";
-        SQLHelper.connectSqlite(sqlPath);
+    public static void main(String... args) {
+        LOGGER.info("Application started");
+
+        String sqlPath = System.getenv("DB_PATH") == null ? DEFAULT_SQL_PATH : System.getenv("DB_PATH");
+        LOGGER.debug("sqlPath = {}", sqlPath);
+
         try {
+            SQLHelper.connectSqlite(sqlPath);
+
             graphsMap = SQLHelper.readGraphsMap();
+            LOGGER.debug("Graphs map was read");
         } catch (SQLException e) {
-            ExceptionLogger.log(e);
+            LOGGER.error("Caught an exception in main. SQL error {}", e.getMessage());
             System.exit(1);
         }
 
+        LOGGER.info("Starting server");
         startServer();
+
+        LOGGER.debug("Starting TimeDaemon");
         startTimeDaemon();
     }
 
@@ -37,8 +49,9 @@ public class ServerMain {
             HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
             server.createContext("/", new Handler(graphsMap));
             server.start();
+            LOGGER.info("Server started successfully");
         } catch (IOException e) {
-            ExceptionLogger.log(e);
+            LOGGER.error("Caught an IO exception. {}", e.getMessage());
         }
     }
 
@@ -46,26 +59,32 @@ public class ServerMain {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
+                LOGGER.debug("Time Daemon starts");
                 try {
                     graphsMap = SQLHelper.readGraphsMap();
                 } catch (SQLException e) {
-                    ExceptionLogger.log(e);
+                    LOGGER.warn("Time Daemon failed to read DB");
+                    return;
                 }
                 Iterator<String> mapIterator = graphsMap.keys().asIterator();
                 while (mapIterator.hasNext()) {
                     String current = mapIterator.next();
-                    if (graphsMap.get(current).getExpirationTime().before(new Date())) {
-                        graphsMap.remove(current);
+                    if (graphsMap.get(current).getExpirationTime().getTime() != 0 &&
+                            graphsMap.get(current).getExpirationTime().before(new Date())) {
                         try {
+                            graphsMap.remove(current);
                             SQLHelper.deleteGraph(current);
+                            LOGGER.debug("Time Daemon deleted a graph item {}", current);
                         } catch (SQLException e) {
-                            ExceptionLogger.log(e);
+                            LOGGER.warn("Time Daemon can't delete a graph {} from DB. {}", current, e.getMessage());
                         }
                     }
                 }
+                LOGGER.debug("Time Daemon finished it's work");
             }
         };
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(task, 0, 60000);
+        LOGGER.debug("Time Daemon was scheduled");
     }
 }
